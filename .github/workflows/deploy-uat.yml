@@ -24,14 +24,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{github.event.repository.default_branch}}
-      - name: Checkout and fetch selected branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{github.event.inputs.branch}}
       - name: Run the deployment using latest commit from default branch
         run: |
           echo "Using default branch: ${{github.event.repository.default_branch}}"
-        # git reset --hard ${{github.event.repository.default_branch}}
+          git fetch
+          git checkout ${{github.event.inputs.branch}}
+          git reset --hard ${{github.event.repository.default_branch}}
+          echo "Commit msg: $(git log -1 --pretty=format:%s)"
         # git push origin ${{github.event.inputs.branch}} --force-with-lease
 
   deploy_uat_sha:
@@ -42,14 +41,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{github.event.inputs.commitSHA}}
-      - name: Checkout and fetch selected branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{github.event.inputs.branch}}
       - name: Run the deployment using provided commit SHA
         run: |
           echo "Using commit #: ${{github.event.inputs.commitSHA}}"
-        # git reset --hard ${{github.event.inputs.commitSHA}}
+          git fetch
+          git checkout ${{github.event.inputs.branch}}
+          git reset --hard ${{github.event.inputs.commitSHA}}
+          echo "Commit msg: $(git log -1 --pretty=format:%s)"
         # git push origin ${{github.event.inputs.branch}} --force-with-lease
 
 # DEPLOY UAT HEAD steps
