@@ -98,4 +98,4 @@ jobs:
 # 4. Check if commit message starts with `Release v`
 # 5. Checkout and fetch prod/mainnet
 # 3. git reset --hard <commit SHA>
-# 4. git push origin prod/mainnet --force-with-lease
+# 4. git push origin prod/mainnet --force-with-lease 
