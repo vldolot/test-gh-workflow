@@ -21,9 +21,12 @@ on:
         required: true
 jobs:
   deploy_prod_head:
-    if: github.event.inputs.commitSHA == '' && startsWith(github.event.head_commit.message, 'Release v')
+    if: github.event.inputs.commitSHA == ''
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          echo "HEAD commit msg: ${{github.event.head_commit.message}}"
+
       - name: Checkout and fetch main branch
         uses: actions/checkout@v3
         with:
