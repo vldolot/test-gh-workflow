@@ -14,7 +14,7 @@ on:
       commitSHA:
         type: string
         required: false
-        description: "And input a valid commit SHA to reset the UAT branch to \n(Optional: defaults to latest commit if empty)"
+        description: "And input a valid commit SHA to reset the PROD branch to \n(Optional: defaults to latest commit if empty)"
       token:
         type: string
         description: Deploy token, generate one with `repo` permission
@@ -36,10 +36,10 @@ jobs:
           MSG=$(git log -1 --pretty=format:%s)
           echo "COMMIT_MESSAGE=${MSG}" >> $GITHUB_OUTPUT
 
-      - name: Check if commit message starts with `Refactor8`
+      - name: Check if commit message starts with `Release v`
         run: |
           echo "commit message: ${{steps.step2.outputs.COMMIT_MESSAGE}}"
-          [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" = \Refactor8* ]] && exit 0
+          [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" = \Release v* ]] && exit 0
 
       - name: Run the deployment using latest commit from default branch
         run: |
@@ -67,10 +67,10 @@ jobs:
           MSG=$(git log -1 --pretty=format:%s $SHA)
           echo "COMMIT_MESSAGE=${MSG}" >> $GITHUB_OUTPUT
 
-      - name: Check if commit message starts with `PROD`
+      - name: Check if commit message starts with `Release v`
         run: |
           echo "commit message: ${{steps.step2.outputs.COMMIT_MESSAGE}}"
-          [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" = \PROD* ]] && exit 0
+          [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" = \Release v* ]] && exit 0
 
       - name: Run the deployment using provided commit SHA
         if: ${{github.event.inputs.commitSHA != ''}}
