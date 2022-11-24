@@ -35,7 +35,6 @@ jobs:
         run: |
           MSG=$(git log -1 --pretty=format:%s)
           echo "COMMIT_MESSAGE=${MSG}" >> $GITHUB_OUTPUT
-        # echo "::set-env name=COMMIT_MESSAGE::${MSG}"
 
       - name: Check if commit message starts with `Refactor8`
         run: |
@@ -67,12 +66,11 @@ jobs:
           SHA="${{github.event.inputs.commitSHA}}"
           MSG=$(git log -1 --pretty=format:%s $SHA)
           echo "COMMIT_MESSAGE=${MSG}" >> $GITHUB_OUTPUT
-        # echo "::set-env name=COMMIT_MESSAGE::${MSG}"
 
       - name: Check if commit message starts with `PROD`
         run: |
           echo "commit message: ${{steps.step2.outputs.COMMIT_MESSAGE}}"
-          [[ ${{steps.step2.outputs.COMMIT_MESSAGE}} =~ ^PROD ]] && exit 0
+          [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" = \PROD* ]] && exit 0
 
       - name: Run the deployment using provided commit SHA
         if: ${{github.event.inputs.commitSHA != ''}}
