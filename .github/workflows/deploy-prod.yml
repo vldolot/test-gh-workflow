@@ -21,7 +21,7 @@ on:
         required: true
 jobs:
   deploy_prod_head:
-    if: github.event.inputs.commitSHA == ''
+    if: github.event.inputs.commitSHA == '' && startsWith(github.event.head_commit.message, 'Release v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout and fetch main branch
@@ -73,7 +73,6 @@ jobs:
           [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" = \Release v* ]] && exit 0
 
       - name: Run the deployment using provided commit SHA
-        if: ${{github.event.inputs.commitSHA != ''}}
         run: |
           echo "Using commit #: ${{github.event.inputs.commitSHA}}"
           git fetch
