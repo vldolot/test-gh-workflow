@@ -42,7 +42,7 @@ jobs:
       - name: Check if commit message starts with `Release v`
         run: |
           echo "commit message: ${{steps.step2.outputs.COMMIT_MESSAGE}}"
-          [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" = \Release v* ]] && exit 0
+          [[ "${{steps.step2.outputs.COMMIT_MESSAGE}}" =~ ^Release v ]] && exit 0
 
       - name: Run the deployment using latest commit from default branch
         run: |
