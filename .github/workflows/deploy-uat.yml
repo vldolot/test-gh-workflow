@@ -10,7 +10,7 @@ on:
         type: choice
         required: true
         description: Select a UAT branch
-        options: ["", "uat"]
+        options: ["", "uat", "test1"]
       commitSHA:
         type: string
         required: false
