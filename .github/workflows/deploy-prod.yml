@@ -21,7 +21,7 @@ on:
         required: true
 jobs:
   deploy_prod_head:
-    if: github.event.inputs.commitSHA == '' && startsWith(github.event.head_commit.message, 'Release v')
+    if: github.event.inputs.commitSHA == ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout and fetch main branch
@@ -29,6 +29,17 @@ jobs:
         with:
           token: ${{github.event.inputs.token}}
           ref: ${{github.event.repository.default_branch}}
+
+      - name: Get the commit message
+        id: step2
+        run: |
+          MSG=$(git log -1 --pretty=format:%s)
+          echo "::set-env name=COMMIT_MESSAGE::${MSG}"
+
+      - name: Check if commit message starts with `Refactor5`
+        run: |
+          echo "commit message: ${COMMIT_MESSAGE}"
+          [[ ${COMMIT_MESSAGE} =~ ^Refactor5 ]] && exit 0
 
       - name: Run the deployment using latest commit from default branch
         run: |
@@ -43,10 +54,6 @@ jobs:
     if: github.event.inputs.commitSHA != ''
     runs-on: ubuntu-latest
     steps:
-      - name: Check if commit SHA exists
-        run: |
-          git cat-file -e ${{github.event.inputs.commitSHA}}^{commit}
-
       - name: Checkout and fetch using provided commit SHA
         uses: actions/checkout@v3
         with:
@@ -54,16 +61,16 @@ jobs:
           ref: ${{github.event.inputs.commitSHA}}
 
       - name: Get the commit message
-        id: msg
+        id: step2
         run: |
           SHA="${{github.event.inputs.commitSHA}}"
           MSG=$(git log -1 --pretty=format:%s $SHA)
           echo "::set-env name=COMMIT_MESSAGE::${MSG}"
 
-      - name: Check if commit message starts with `Release v`
+      - name: Check if commit message starts with `PROD`
         run: |
           echo "commit message: ${COMMIT_MESSAGE}"
-          [[ ${COMMIT_MESSAGE} =~ ^Release v ]] && exit 0
+          [[ ${COMMIT_MESSAGE} =~ ^PROD ]] && exit 0
 
       - name: Run the deployment using provided commit SHA
         if: ${{github.event.inputs.commitSHA != ''}}
