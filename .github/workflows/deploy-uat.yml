@@ -17,7 +17,7 @@ on:
         description: "And input a valid commit SHA to reset the UAT branch to \n(Optional: defaults to latest commit if empty)"
 jobs:
   deploy_uat_head:
-    if: ${{github.event.inputs.commitSHA == ''}}
+    if: github.event.inputs.commitSHA == ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout and fetch main branch
@@ -33,11 +33,12 @@ jobs:
           echo "Using default branch: ${{github.event.repository.default_branch}}"
         # git reset --hard ${{github.event.repository.default_branch}}
         # git push origin ${{github.event.inputs.branch}} --force-with-lease
+
   deploy_uat_sha:
-    if: ${{github.event.inputs.commitSHA != ''}}
+    if: github.event.inputs.commitSHA != ''
     runs-on: ubuntu-latest
     steps:
-      - name: Check commit SHA if valid
+      - name: Check if commit SHA exists
         run: |
           git cat-file -e ${{github.event.inputs.commitSHA}}^{commit}
       - name: Checkout and fetch using provided commit SHA
@@ -54,7 +55,15 @@ jobs:
         # git reset --hard ${{github.event.inputs.commitSHA}}
         # git push origin ${{github.event.inputs.branch}} --force-with-lease
 
-# 1. Checkout and fetch main (default_branch)
-# 2. Checkout uat/porcini
+# DEPLOY UAT HEAD steps
+# 1. Checkout and fetch main / default_branch
+# 2. Checkout and fetch uat/porcini
 # 3. git reset --hard main / default_branch
 # 4. git push origin uat/porcini --force-with-lease
+
+# DEPLOY UAT COMMIT SHA steps
+# 1. Check if provided commit SHA exists
+# 2. Checkout and fetch <commit SHA>
+# 3. Checkout and fetch uat/porcini
+# 4. git reset --hard <commit SHA>
+# 5. git push origin uat/porcini --force-with-lease
