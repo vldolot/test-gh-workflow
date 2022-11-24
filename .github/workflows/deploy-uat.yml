@@ -1,0 +1,60 @@
+name: Deploy | UAT
+run-name: Deploy to `${{ github.event.inputs.branch }}` by @${{ github.actor }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        type: choice
+        required: true
+        description: Select a UAT branch
+        options: ["", "uat"]
+      commitSHA:
+        type: string
+        required: false
+        description: "And input a valid commit SHA to reset the UAT branch to \n(Optional: defaults to latest commit if empty)"
+jobs:
+  deploy_uat_head:
+    if: ${{github.event.inputs.commitSHA == ''}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout and fetch main branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.repository.default_branch}}
+      - name: Checkout and fetch selected branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.inputs.branch}}
+      - name: Run the deployment using latest commit from default branch
+        run: |
+          echo "Using default branch: ${{github.event.repository.default_branch}}"
+        # git reset --hard ${{github.event.repository.default_branch}}
+        # git push origin ${{github.event.inputs.branch}} --force-with-lease
+  deploy_uat_sha:
+    if: ${{github.event.inputs.commitSHA != ''}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check commit SHA if valid
+        run: |
+          git cat-file -e ${{github.event.inputs.commitSHA}}^{commit}
+      - name: Checkout and fetch using provided commit SHA
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.inputs.commitSHA}}
+      - name: Checkout and fetch selected branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.inputs.branch}}
+      - name: Run the deployment using provided commit SHA
+        run: |
+          echo "Using commit #: ${{github.event.inputs.commitSHA}}"
+        # git reset --hard ${{github.event.inputs.commitSHA}}
+        # git push origin ${{github.event.inputs.branch}} --force-with-lease
+
+# 1. Checkout and fetch main (default_branch)
+# 2. Checkout uat/porcini
+# 3. git reset --hard main / default_branch
+# 4. git push origin uat/porcini --force-with-lease
