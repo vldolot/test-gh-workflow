@@ -34,12 +34,13 @@ jobs:
         id: step2
         run: |
           MSG=$(git log -1 --pretty=format:%s)
-          echo "::set-env name=COMMIT_MESSAGE::${MSG}"
+          echo "COMMIT_MESSAGE=${MSG}" >> $GITHUB_OUTPUT
+        # echo "::set-env name=COMMIT_MESSAGE::${MSG}"
 
-      - name: Check if commit message starts with `Refactor5`
+      - name: Check if commit message starts with `Refactor6`
         run: |
-          echo "commit message: ${COMMIT_MESSAGE}"
-          [[ ${COMMIT_MESSAGE} =~ ^Refactor5 ]] && exit 0
+          echo "commit message: ${{steps.step2.outputs.COMMIT_MESSAGE}}"
+          [[ ${{steps.step2.outputs.COMMIT_MESSAGE}} =~ ^Refactor6 ]] && exit 0
 
       - name: Run the deployment using latest commit from default branch
         run: |
@@ -65,12 +66,13 @@ jobs:
         run: |
           SHA="${{github.event.inputs.commitSHA}}"
           MSG=$(git log -1 --pretty=format:%s $SHA)
-          echo "::set-env name=COMMIT_MESSAGE::${MSG}"
+          echo "COMMIT_MESSAGE=${MSG}" >> $GITHUB_OUTPUT
+        # echo "::set-env name=COMMIT_MESSAGE::${MSG}"
 
       - name: Check if commit message starts with `PROD`
         run: |
-          echo "commit message: ${COMMIT_MESSAGE}"
-          [[ ${COMMIT_MESSAGE} =~ ^PROD ]] && exit 0
+          echo "commit message: ${{steps.step2.outputs.COMMIT_MESSAGE}}"
+          [[ ${{steps.step2.outputs.COMMIT_MESSAGE}} =~ ^PROD ]] && exit 0
 
       - name: Run the deployment using provided commit SHA
         if: ${{github.event.inputs.commitSHA != ''}}
