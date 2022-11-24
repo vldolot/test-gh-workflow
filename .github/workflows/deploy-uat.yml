@@ -14,7 +14,7 @@ on:
       commitSHA:
         type: string
         required: false
-        description: "And input a valid commit SHA to reset the UAT branch to \n(Optional: defaults to latest commit if empty)"
+        description: "And input a valid commit SHA (40 chars string) to reset the UAT branch to \n(Optional: defaults to latest commit if empty)"
 jobs:
   deploy_uat_head:
     if: github.event.inputs.commitSHA == ''
@@ -38,9 +38,6 @@ jobs:
     if: github.event.inputs.commitSHA != ''
     runs-on: ubuntu-latest
     steps:
-      - name: Check if commit SHA exists
-        run: |
-          git cat-file -e ${{github.event.inputs.commitSHA}}^{commit}
       - name: Checkout and fetch using provided commit SHA
         uses: actions/checkout@v3
         with:
@@ -62,8 +59,7 @@ jobs:
 # 4. git push origin uat/porcini --force-with-lease
 
 # DEPLOY UAT COMMIT SHA steps
-# 1. Check if provided commit SHA exists
-# 2. Checkout and fetch <commit SHA>
-# 3. Checkout and fetch uat/porcini
-# 4. git reset --hard <commit SHA>
-# 5. git push origin uat/porcini --force-with-lease
+# 1. Checkout and fetch <commit SHA>
+# 2. Checkout and fetch uat/porcini
+# 3. git reset --hard <commit SHA>
+# 4. git push origin uat/porcini --force-with-lease
