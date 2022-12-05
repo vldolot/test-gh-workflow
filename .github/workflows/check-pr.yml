@@ -1,0 +1,66 @@
+name: Check | PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: ["*"]
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Yarn Cache Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install yarn@3.3.0
+        run: |
+          corepack enable
+          corepack prepare yarn@3.3.0 --activate
+          echo "Yarn version: $(yarn --version)"
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Config yarn cache
+        id: yarn-cache-dir-path
+        run: |
+          YARN_DIR=$(yarn config get cacheFolder)
+          echo "dir=${YARN_DIR}" >> $GITHUB_OUTPUT
+      - name: Test dir and key
+        run: |
+          echo "DIR: ${{ steps.yarn-cache-dir-path.outputs.dir }}"
+          echo "KEY: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
+      - name: Setup Yarn Cache
+        uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Run Yarn install
+        run: |
+          yarn install --immutable
+      # - name: Run lint
+      #   run: |
+      #     yarn lint
+      # - name: Run unit tests
+      #   run: |
+      #     yarn test
+      # - name: Run prisma:generate and build for ebd
+      #   run: |
+      #     yarn workspace @trncs/ebd prisma:generate
+      #     yarn workspace @trncs/ebd build
+      # - name: Run prisma:generate and build for xbd
+      #   run: |
+      #     yarn workspace @trncs/xbd prisma:generate
+      #     yarn workspace @trncs/xbd build

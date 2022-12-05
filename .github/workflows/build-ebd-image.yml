@@ -43,6 +43,18 @@ jobs:
           echo "commit hash: $COMMIT_HASH"
           echo "branch environment: $ENV_NAME"
 
+          # docker images "$IMAGE_NAME":"$COMMIT_HASH"
+
+          # Set output
+          echo "version=${COMMIT_HASH}" >> $GITHUB_OUTPUT
+          echo "env_name=${ENV_NAME}" >> $GITHUB_OUTPUT
+
+          # skip docker build when image with $COMMIT_HASH tag already exists
+          if [ -n "$(docker images -q "$IMAGE_NAME":"$COMMIT_HASH")" ]; then
+            echo "docker build skipped because image already exists"
+            exit 0
+          fi
+
           # docker build -t "$IMAGE_NAME":"$COMMIT_HASH" -f ./Dockerfile.ebd .
           echo "docker push ${IMAGE_NAME}:${COMMIT_HASH}"
 
@@ -60,10 +72,6 @@ jobs:
 
           # clean up images
           docker image prune --filter label=stage=build -f
-
-          # Set output
-          echo "version=${COMMIT_HASH}" >> $GITHUB_OUTPUT
-          echo "env_name=${ENV_NAME}" >> $GITHUB_OUTPUT
 
       - name: Test internal outputs
         run: |
