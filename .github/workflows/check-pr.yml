@@ -67,5 +67,5 @@ jobs:
       - name: Run prisma:generate and build for xbd
         if: ${{ github.event.label.name == 'XBD' }}
         run: |
-          yarn workspace @trncs/xbd prisma:generate
-          yarn workspace @trncs/xbd build
+          echo "yarn workspace @trncs/xbd prisma:generate"
+          echo "yarn workspace @trncs/xbd build"
