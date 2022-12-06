@@ -2,7 +2,7 @@ name: Check | PR
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled]
     branches: ["*"]
 
   workflow_dispatch:
@@ -39,6 +39,8 @@ jobs:
         run: |
           echo "DIR: ${{ steps.yarn-cache-dir-path.outputs.dir }}"
           echo "KEY: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
+          echo "LABEL: ${{ github.event.label.name }}"
+
       - name: Setup Yarn Cache
         uses: actions/cache@v3
         id: yarn-cache
@@ -56,11 +58,14 @@ jobs:
       # - name: Run unit tests
       #   run: |
       #     yarn test
-      # - name: Run prisma:generate and build for ebd
-      #   run: |
-      #     yarn workspace @trncs/ebd prisma:generate
-      #     yarn workspace @trncs/ebd build
-      # - name: Run prisma:generate and build for xbd
-      #   run: |
-      #     yarn workspace @trncs/xbd prisma:generate
-      #     yarn workspace @trncs/xbd build
+      - name: Run prisma:generate and build for ebd
+        if: ${{ github.event.label.name == 'EBD' }}
+        run: |
+          echo "yarn workspace @trncs/ebd prisma:generate"
+          echo "yarn workspace @trncs/ebd build"
+
+      - name: Run prisma:generate and build for xbd
+        if: ${{ github.event.label.name == 'XBD' }}
+        run: |
+          echo "yarn workspace @trncs/xbd prisma:generate"
+          echo "yarn workspace @trncs/xbd build"
